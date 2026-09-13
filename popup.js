@@ -9,6 +9,38 @@ chrome.storage.local.get(['total_meters', 'nickname'], (res) => {
   }
 });
 
+// Load saved nickname into the input box on popup open
+chrome.storage.local.get(['nickname'], (res) => {
+  if (res.nickname) {
+    document.getElementById('nicknameInput').value = res.nickname;
+  }
+});
+
+// Handle Save Button click
+const saveNickBtn = document.getElementById('saveNickBtn');
+const nicknameInput = document.getElementById('nicknameInput');
+
+saveNickBtn.addEventListener('click', () => {
+  const newNick = nicknameInput.value.trim();
+  if (!newNick) return;
+
+  saveNickBtn.disabled = true;
+  saveNickBtn.innerText = 'SAVED!';
+
+  // Store locally
+  chrome.storage.local.set({ nickname: newNick }, () => {
+    // Optionally trigger an immediate sync to update the name on Supabase
+    chrome.runtime.sendMessage({ type: 'MANUAL_SYNC' }, () => {
+      loadLeaderboard();
+    });
+
+    setTimeout(() => {
+      saveNickBtn.disabled = false;
+      saveNickBtn.innerText = 'SAVE';
+    }, 1200);
+  });
+});
+
 // Save Nickname
 document.getElementById('saveNickBtn').addEventListener('click', async () => {
   const newNick = document.getElementById('nicknameInput').value.trim();
@@ -63,4 +95,36 @@ function loadLeaderboard() {
     });
 }
 
+function updateLocalDisplay() {
+  chrome.storage.local.get(['total_meters'], (res) => {
+    const m = res.total_meters || 0;
+    document.getElementById('dist').innerText = m > 1000 
+      ? `${(m / 1000).toFixed(3)} km` 
+      : `${m.toFixed(2)} m`;
+  });
+}
+
+updateLocalDisplay();
 loadLeaderboard();
+
+// Handle Manual Sync Click
+const syncBtn = document.getElementById('syncBtn');
+syncBtn.addEventListener('click', () => {
+  syncBtn.disabled = true;
+  syncBtn.innerText = 'SYNCING...';
+
+  chrome.runtime.sendMessage({ type: 'MANUAL_SYNC' }, (response) => {
+    if (response && response.success) {
+      syncBtn.innerText = 'SYNC COMPLETE!';
+      updateLocalDisplay();
+      loadLeaderboard();
+    } else {
+      syncBtn.innerText = 'SYNC FAILED';
+    }
+
+    setTimeout(() => {
+      syncBtn.disabled = false;
+      syncBtn.innerText = 'SYNC NOW';
+    }, 1500);
+  });
+});

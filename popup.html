@@ -8,15 +8,60 @@
     }
     h2, h3 { margin: 4px 0 8px 0; text-transform: uppercase; font-size: 13px; }
     .odometer { font-size: 22px; font-weight: bold; margin-bottom: 12px; color: #fff; }
+    
     .nick-box { display: flex; gap: 6px; margin-bottom: 14px; }
     input {
       background: #111; border: 1px solid #00ff00; color: #00ff00;
-      padding: 4px 8px; font-family: monospace; font-size: 11px; flex: 1; outline: none;
+      padding: 6px 8px; font-family: monospace; font-size: 11px; flex: 1; outline: none;
     }
+
+    /* Base button styles */
     button {
-      background: #00ff00; color: #1a1a1a; border: none; font-family: monospace;
-      font-weight: bold; font-size: 11px; padding: 4px 8px; cursor: pointer;
+      font-family: monospace;
+      font-weight: bold;
+      cursor: pointer;
+      outline: none;
+      transition: background-color 0.15s ease, color 0.15s ease;
     }
+
+    /* Save Nickname Button */
+    #saveNickBtn {
+      background: #111;
+      color: #00ff00;
+      border: 1px solid #00ff00;
+      font-size: 11px;
+      padding: 6px 10px;
+    }
+    #saveNickBtn:not(:disabled):hover {
+      background: #00ff00 !important;
+      color: #1a1a1a !important;
+    }
+    #saveNickBtn:disabled {
+      border-color: #555;
+      color: #555;
+      cursor: not-allowed;
+    }
+
+    /* Sync Button */
+    .sync-btn {
+      width: 100%;
+      background: #111;
+      color: #00ff00;
+      border: 1px solid #00ff00;
+      padding: 6px;
+      margin-top: 12px;
+      font-size: 11px;
+    }
+    .sync-btn:not(:disabled):hover {
+      background: #00ff00 !important;
+      color: #1a1a1a !important;
+    }
+    .sync-btn:disabled {
+      border-color: #555;
+      color: #555;
+      cursor: not-allowed;
+    }
+
     table { width: 100%; border-collapse: collapse; font-size: 11px; }
     td { padding: 3px 0; }
     .rank { color: #888; width: 25px; }
@@ -36,6 +81,8 @@
   <table id="leaderboard">
     <tr><td colspan="3">Loading rankings...</td></tr>
   </table>
+
+  <button class="sync-btn" id="syncBtn">SYNC NOW</button>
 
   <script src="config.js"></script>
   <script src="popup.js"></script>
