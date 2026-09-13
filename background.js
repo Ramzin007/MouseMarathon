@@ -1,6 +1,6 @@
 importScripts('config.js');
 
-const MILESTONES = [10, 50, 100, 500, 1000];
+const MILESTONES = [1, 50, 100, 500, 1000];
 
 chrome.runtime.onInstalled.addListener(async () => {
   const data = await chrome.storage.local.get(['user_id']);
@@ -17,6 +17,7 @@ chrome.runtime.onInstalled.addListener(async () => {
 
 chrome.runtime.onMessage.addListener((msg, sender) => {
   if (msg.type === 'MOUSE_DELTA') {
+    console.log('[Service Worker] Received delta:', msg.meters.toFixed(2), 'm');
     chrome.storage.local.get(['total_meters', 'unsynced_meters', 'passed_milestones'], (res) => {
       const oldTotal = res.total_meters || 0;
       const newTotal = oldTotal + msg.meters;

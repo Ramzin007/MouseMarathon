@@ -1,13 +1,17 @@
-// Heuristic check: abort if password or credit card inputs exist
-if (document.querySelector('input[type="password"], input[autocomplete="cc-number"]')) {
-  console.warn('[MouseMarathon] Sensitive inputs detected. Tracking aborted.');
+// Check for VISIBLE password/credit card inputs only
+const sensitiveField = document.querySelector('input[type="password"], input[autocomplete="cc-number"]');
+const isFieldVisible = sensitiveField && (sensitiveField.offsetWidth > 0 || sensitiveField.offsetHeight > 0);
+
+if (isFieldVisible) {
+  console.warn('[MouseMarathon] Visible sensitive inputs detected. Tracking aborted.');
 } else {
   let lastX = null;
   let lastY = null;
   let bufferedMeters = 0;
   const MM_PER_PIXEL = 0.264583;
 
-  window.addEventListener('mousemove', (e) => {
+  // Use document with capture phase to ensure modern SPAs don't swallow mouse movements
+  document.addEventListener('mousemove', (e) => {
     if (lastX !== null && lastY !== null) {
       const dx = e.clientX - lastX;
       const dy = e.clientY - lastY;
@@ -16,20 +20,29 @@ if (document.querySelector('input[type="password"], input[autocomplete="cc-numbe
     }
     lastX = e.clientX;
     lastY = e.clientY;
-  }, { passive: true });
+  }, { capture: true, passive: true });
 
-  // Flush buffer every 2,000 ms to background
-  setInterval(() => {
-    if (bufferedMeters > 0) {
-      chrome.runtime.sendMessage({
-        type: 'MOUSE_DELTA',
-        meters: bufferedMeters
-      }).catch(() => {});
-      bufferedMeters = 0;
+  const flushInterval = setInterval(() => {
+    try {
+      if (!chrome.runtime || !chrome.runtime.id) {
+        clearInterval(flushInterval);
+        return;
+      }
+
+      if (bufferedMeters > 0) {
+        chrome.runtime.sendMessage({
+          type: 'MOUSE_DELTA',
+          meters: bufferedMeters
+        }, () => {
+          if (chrome.runtime.lastError) {}
+        });
+        bufferedMeters = 0;
+      }
+    } catch (e) {
+      clearInterval(flushInterval);
     }
   }, 2000);
 
-  // Listen for celebration jumpscares
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === 'TRIGGER_CELEBRATION') {
       showCelebration(msg.milestone);
