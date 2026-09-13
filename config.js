@@ -1,0 +1,4 @@
+const SUPABASE_CONFIG = {
+  URL: "https://feehuljeqejpldljwyio.supabase.co",
+  ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlZWh1bGplcWVqcGxkbGp3eWlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNTA4NjEsImV4cCI6MjEwNDgyNjg2MX0.RyGEkHIiS0fO2_ltfE8B8qp4l1HPZU_uVT29VeOMCUA"
+};
