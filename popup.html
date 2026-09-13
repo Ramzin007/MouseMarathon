@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      width: 260px; background: #1a1a1a; color: #00ff00;
+      font-family: monospace; padding: 12px; margin: 0;
+    }
+    h2, h3 { margin: 4px 0 10px 0; text-transform: uppercase; font-size: 13px; }
+    .odometer { font-size: 20px; font-weight: bold; margin-bottom: 12px; color: #fff; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    td { padding: 3px 0; }
+    .rank { color: #888; width: 25px; }
+    .score { text-align: right; }
+  </style>
+</head>
+<body>
+  <h2>M-ODOMETER</h2>
+  <div class="odometer" id="dist">0.00 m</div>
+  
+  <h3>Global Top 10</h3>
+  <table id="leaderboard">
+    <tr><td colspan="3">Loading rankings...</td></tr>
+  </table>
+
+  <script src="config.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
