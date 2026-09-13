@@ -5,6 +5,21 @@ chrome.storage.local.get(['total_meters'], (res) => {
     : `${m.toFixed(2)} m`;
 });
 
+const nickInput = document.getElementById('nickname-input');
+chrome.storage.local.get(['nickname'], (res) => {
+  if (res.nickname) nickInput.value = res.nickname;
+});
+
+document.getElementById('save-nick-btn').addEventListener('click', () => {
+  const val = nickInput.value.trim();
+  if (val) {
+    chrome.storage.local.set({ nickname: val }, () => {
+      nickInput.style.borderColor = '#ffffff';
+      setTimeout(() => nickInput.style.borderColor = '#00ff00', 500);
+    });
+  }
+});
+
 // Query Supabase REST API directly: order by total_meters desc limit 10
 fetch(`${SUPABASE_CONFIG.URL}/rest/v1/users?select=nickname,total_meters&order=total_meters.desc&limit=10`, {
   headers: {
