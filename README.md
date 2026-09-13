@@ -1,4 +1,4 @@
-# MouseMarathon 🎯
+# Mouse-Odometer 🎯
 
 ## Basic Details
 ### Team Name: Quartz
@@ -60,14 +60,17 @@ cd MouseMarathon
 ## For Software:
 
 ### Screenshots
-![Popup Odometer](Add screenshot 1 here with proper name)
+<img width="1920" height="1080" alt="Screenshot 2026-09-13 163342" src="https://github.com/user-attachments/assets/6373cf8b-0feb-486c-850d-2de3ddcaa98f" />
+
 Retro arcade popup showing live distance tracking, custom runner nickname, and global Supabase leaderboard rankings.
 
-![Milestone Jumpscare](Add screenshot 2 here with proper name)
+<img width="1920" height="1080" alt="Screenshot 2026-09-13 163522" src="https://github.com/user-attachments/assets/976d214e-8307-4379-8de1-962df44a5521" />
+
 Full-screen Malayalam comedy meme jumpscare overlay appearing when a milestone distance is reached.
 
-![DevTools Tracking](Add screenshot 3 here with proper name)
-Real-time cursor distance calculation and batch synchronization via Chrome runtime messaging.
+<img width="1920" height="1080" alt="Screenshot (16)" src="https://github.com/user-attachments/assets/ef14d35a-c116-41ed-938d-30697c69c395" />
+Supabase table to calculate top 10 ranking
+
 
 # Diagrams
 ```text
@@ -96,11 +99,14 @@ Architecture and runtime communication pipeline of MouseMarathon.
 
 # Project Demo
 ## Video
-[Add your demo video link here]
+[demo vedio](https://drive.google.com/file/d/1WG5AxXAcvjSGU0DYkA6n3UWg-NxjrMJx/view)
+
 Demonstrates real-time odometer updates in the popup, automatic Supabase leaderboard sync, and a live Malayalam meme jumpscare triggering with sound.
 
 ## Additional Demos
 GitHub Repository: [https://github.com/Ramzin007/MouseMarathon](https://github.com/Ramzin007/MouseMarathon)
+
+Zip: [https://drive.google.com/file/d/137jxRYg40D30QE2o0-HtzapPhA0F1ad-/view?usp=drive_link](https://drive.google.com/file/d/137jxRYg40D30QE2o0-HtzapPhA0F1ad-/view?usp=sharing)
 
 # Team Contributions
 Muhammed M A: Extension architecture (Manifest V3), distance tracking mechanics, audio looping integration, meme jumpscare overlay design, testing, and documentation.
