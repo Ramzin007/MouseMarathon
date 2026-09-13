@@ -3,28 +3,34 @@
 <head>
   <style>
     body {
-      width: 260px; background: #1a1a1a; color: #00ff00;
-      font-family: monospace; padding: 12px; margin: 0;
+      width: 280px; background: #1a1a1a; color: #00ff00;
+      font-family: monospace; padding: 14px; margin: 0;
     }
-    h2, h3 { margin: 4px 0 10px 0; text-transform: uppercase; font-size: 13px; }
-    .odometer { font-size: 20px; font-weight: bold; margin-bottom: 12px; color: #fff; }
+    h2, h3 { margin: 4px 0 8px 0; text-transform: uppercase; font-size: 13px; }
+    .odometer { font-size: 22px; font-weight: bold; margin-bottom: 12px; color: #fff; }
+    .nick-box { display: flex; gap: 6px; margin-bottom: 14px; }
+    input {
+      background: #111; border: 1px solid #00ff00; color: #00ff00;
+      padding: 4px 8px; font-family: monospace; font-size: 11px; flex: 1; outline: none;
+    }
+    button {
+      background: #00ff00; color: #1a1a1a; border: none; font-family: monospace;
+      font-weight: bold; font-size: 11px; padding: 4px 8px; cursor: pointer;
+    }
     table { width: 100%; border-collapse: collapse; font-size: 11px; }
     td { padding: 3px 0; }
     .rank { color: #888; width: 25px; }
-    .score { text-align: right; }
+    .score { text-align: right; color: #fff; }
   </style>
 </head>
 <body>
   <h2>M-ODOMETER</h2>
-  <div style="margin-bottom: 12px; display: flex; gap: 4px;">
-  <input type="text" id="nickname-input" placeholder="Your Handle" maxlength="15" 
-         style="background: #000; border: 1px solid #00ff00; color: #00ff00; padding: 4px; font-family: monospace; width: 70%; font-size: 11px;">
-  <button id="save-nick-btn" 
-          style="background: #00ff00; color: #000; border: none; font-weight: bold; cursor: pointer; font-family: monospace; font-size: 11px; width: 30%;">
-    SET
-  </button>
-</div>
   <div class="odometer" id="dist">0.00 m</div>
+
+  <div class="nick-box">
+    <input type="text" id="nicknameInput" maxlength="20" placeholder="Set runner tag...">
+    <button id="saveNickBtn">SAVE</button>
+  </div>
   
   <h3>Global Top 10</h3>
   <table id="leaderboard">
