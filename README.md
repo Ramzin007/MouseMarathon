@@ -100,7 +100,7 @@ Architecture and runtime communication pipeline of MouseMarathon.
 Demonstrates real-time odometer updates in the popup, automatic Supabase leaderboard sync, and a live Malayalam meme jumpscare triggering with sound.
 
 ## Additional Demos
-GitHub Repository: https://github.com/Ramzin007/MouseMarathon
+GitHub Repository: [https://github.com/Ramzin007/MouseMarathon](https://github.com/Ramzin007/MouseMarathon)
 
 # Team Contributions
 Muhammed M A: Extension architecture (Manifest V3), distance tracking mechanics, audio looping integration, meme jumpscare overlay design, testing, and documentation.
