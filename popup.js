@@ -1,70 +1,30 @@
-chrome.storage.local.get(['total_meters', 'nickname'], (res) => {
-  const m = res.total_meters || 0;
-  document.getElementById('dist').innerText = m > 1000 
-    ? `${(m / 1000).toFixed(3)} km` 
-    : `${m.toFixed(2)} m`;
-
-  if (res.nickname) {
-    document.getElementById('nicknameInput').value = res.nickname;
-  }
-});
-
-// Load saved nickname into the input box on popup open
-chrome.storage.local.get(['nickname'], (res) => {
-  if (res.nickname) {
-    document.getElementById('nicknameInput').value = res.nickname;
-  }
-});
-
-// Handle Save Button click
 const saveNickBtn = document.getElementById('saveNickBtn');
 const nicknameInput = document.getElementById('nicknameInput');
+const syncBtn = document.getElementById('syncBtn');
 
-saveNickBtn.addEventListener('click', () => {
-  const newNick = nicknameInput.value.trim();
-  if (!newNick) return;
+function updateLocalDisplay() {
+  chrome.storage.local.get(['total_meters', 'nickname'], (res) => {
+    const m = res.total_meters || 0;
+    document.getElementById('dist').innerText = m > 1000 
+      ? `${(m / 1000).toFixed(3)} km` 
+      : `${m.toFixed(2)} m`;
 
-  saveNickBtn.disabled = true;
-  saveNickBtn.innerText = 'SAVED!';
-
-  // Store locally
-  chrome.storage.local.set({ nickname: newNick }, () => {
-    // Optionally trigger an immediate sync to update the name on Supabase
-    chrome.runtime.sendMessage({ type: 'MANUAL_SYNC' }, () => {
-      loadLeaderboard();
-    });
-
-    setTimeout(() => {
-      saveNickBtn.disabled = false;
-      saveNickBtn.innerText = 'SAVE';
-    }, 1200);
+    if (res.nickname && !nicknameInput.value) {
+      nicknameInput.value = res.nickname;
+    }
   });
+}
+
+// Listen for live updates while the popup remains open
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local' && changes.total_meters) {
+    const m = changes.total_meters.newValue || 0;
+    document.getElementById('dist').innerText = m > 1000 
+      ? `${(m / 1000).toFixed(3)} km` 
+      : `${m.toFixed(2)} m`;
+  }
 });
 
-// Save Nickname
-document.getElementById('saveNickBtn').addEventListener('click', async () => {
-  const newNick = document.getElementById('nicknameInput').value.trim();
-  if (!newNick) return;
-
-  const { user_id } = await chrome.storage.local.get(['user_id']);
-  await chrome.storage.local.set({ nickname: newNick });
-
-  // Update immediately in Supabase
-  await fetch(`${SUPABASE_CONFIG.URL}/rest/v1/users?user_id=eq.${user_id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SUPABASE_CONFIG.ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_CONFIG.ANON_KEY}`,
-      'Prefer': 'return=minimal'
-    },
-    body: JSON.stringify({ nickname: newNick })
-  });
-
-  loadLeaderboard();
-});
-
-// Fetch Leaderboard
 function loadLeaderboard() {
   fetch(`${SUPABASE_CONFIG.URL}/rest/v1/users?select=nickname,total_meters&order=total_meters.desc&limit=10`, {
     headers: {
@@ -95,20 +55,40 @@ function loadLeaderboard() {
     });
 }
 
-function updateLocalDisplay() {
-  chrome.storage.local.get(['total_meters'], (res) => {
-    const m = res.total_meters || 0;
-    document.getElementById('dist').innerText = m > 1000 
-      ? `${(m / 1000).toFixed(3)} km` 
-      : `${m.toFixed(2)} m`;
-  });
-}
+// Single handler for saving nickname locally and to Supabase
+saveNickBtn.addEventListener('click', async () => {
+  const newNick = nicknameInput.value.trim();
+  if (!newNick) return;
 
-updateLocalDisplay();
-loadLeaderboard();
+  saveNickBtn.disabled = true;
+  saveNickBtn.innerText = 'SAVING...';
 
-// Handle Manual Sync Click
-const syncBtn = document.getElementById('syncBtn');
+  const { user_id } = await chrome.storage.local.get(['user_id']);
+  await chrome.storage.local.set({ nickname: newNick });
+
+  try {
+    await fetch(`${SUPABASE_CONFIG.URL}/rest/v1/users?user_id=eq.${user_id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_CONFIG.ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_CONFIG.ANON_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({ nickname: newNick })
+    });
+  } catch (e) {}
+
+  saveNickBtn.innerText = 'SAVED!';
+  loadLeaderboard();
+
+  setTimeout(() => {
+    saveNickBtn.disabled = false;
+    saveNickBtn.innerText = 'SAVE';
+  }, 1200);
+});
+
+// Sync button handler
 syncBtn.addEventListener('click', () => {
   syncBtn.disabled = true;
   syncBtn.innerText = 'SYNCING...';
@@ -128,3 +108,6 @@ syncBtn.addEventListener('click', () => {
     }, 1500);
   });
 });
+
+updateLocalDisplay();
+loadLeaderboard();
