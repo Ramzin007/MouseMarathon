@@ -51,18 +51,70 @@ if (isFieldVisible) {
 }
 
 function showCelebration(milestone) {
+  // Prevent duplicate popups if one is already showing
+  if (document.getElementById('mouse-marathon-overlay')) return;
+
   const overlay = document.createElement('div');
+  overlay.id = 'mouse-marathon-overlay';
   overlay.style.cssText = `
-    position: fixed; inset: 0; z-index: 2147483647;
-    background: rgba(0, 0, 0, 0.85); display: flex;
-    flex-direction: column; align-items: center; justify-content: center;
-    color: #00ff00; font-family: monospace; font-size: 32px;
-    font-weight: bold; text-shadow: 0 0 10px #00ff00;
-    cursor: pointer; pointer-events: auto;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    user-select: none;
+    animation: flashBg 0.35s infinite alternate;
   `;
+
   overlay.innerHTML = `
-    <div>🚨 MILESTONE REACHED: ${milestone}m 🚨</div>
-    <div style="font-size: 16px; color: #fff; margin-top: 15px;">CLICK TO DISMISS YOUR MEANINGLESS FEAT</div>
+    <style>
+      @keyframes flashBg {
+        0% { background: rgba(0, 0, 0, 0.92); }
+        100% { background: rgba(20, 0, 0, 0.95); }
+      }
+      @keyframes neonPulse {
+        0%, 100% { text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00, 0 0 40px #00ff00; }
+        50% { text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; }
+      }
+      .neon-title {
+        color: #00ff00;
+        font-size: 34px;
+        font-weight: 900;
+        text-align: center;
+        letter-spacing: 2px;
+        animation: neonPulse 0.5s infinite;
+        margin: 0;
+      }
+      .neon-sub {
+        color: #ffffff;
+        font-size: 14px;
+        letter-spacing: 1px;
+        margin-top: 18px;
+        text-transform: uppercase;
+        border: 1px dashed #00ff00;
+        padding: 6px 14px;
+        background: rgba(0, 255, 0, 0.1);
+      }
+      .glitch-stat {
+        color: #ff0055;
+        font-size: 16px;
+        margin-top: 12px;
+        font-weight: bold;
+      }
+    </style>
+
+    <img src="https://media.giphy.com/media/artj92V8o75VPL7AeQ/giphy.gif" 
+         alt="Celebration" 
+         style="width: 220px; height: auto; border: 2px solid #00ff00; margin-bottom: 20px; box-shadow: 0 0 15px #00ff00;" />
+    
+    <div class="neon-title">🚨 MILESTONE UNLOCKED 🚨</div>
+    <div class="glitch-stat">CURSOR DISPLACEMENT: ${milestone} METERS</div>
+    <div class="neon-sub">[ CLICK ANYWHERE TO DISMISS YOUR MEANINGLESS FEAT ]</div>
   `;
 
   try {

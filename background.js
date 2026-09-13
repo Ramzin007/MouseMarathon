@@ -1,6 +1,6 @@
 importScripts('config.js');
 
-const MILESTONES = [1, 50, 100, 500, 1000];
+const MILESTONES = [1, 50, 100, 200, 1000];
 
 chrome.runtime.onInstalled.addListener(async () => {
   const data = await chrome.storage.local.get(['user_id']);
