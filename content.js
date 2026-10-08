@@ -126,11 +126,10 @@ function showCelebration(milestone) {
   audio.loop = true;
   audio.volume = 1.0;
 
-  // Immediate attempt
-  let isPlaying = false;
-  audio.play()
-    .then(() => { isPlaying = true; })
-    .catch(() => {});
+  // Direct, unblocked playback call
+  audio.play().catch((err) => {
+    console.warn('[MouseMarathon] Audio blocked by Chrome Autoplay Policy:', err);
+  });
 
   const item = MEME_ROSTER[Math.floor(Math.random() * MEME_ROSTER.length)];
 
@@ -160,17 +159,7 @@ function showCelebration(milestone) {
     </div>
   `;
 
-  // Play immediately if user clicks or touches the overlay
-  const handleInteraction = () => {
-    if (!isPlaying) {
-      audio.play().catch(() => {});
-      isPlaying = true;
-    }
-  };
-
-  overlay.addEventListener('pointerdown', handleInteraction, { once: true });
-
-  // Dismiss and clean up
+  // Clicking strictly stops the audio and clears the overlay
   overlay.addEventListener('click', () => {
     audio.pause();
     audio.currentTime = 0;
