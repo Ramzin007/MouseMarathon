@@ -3,7 +3,7 @@
   "name": "MouseMarathon",
   "version": "1.0.0",
   "description": "Global Browser Odometer tracking physical cursor distance.",
-  "permissions": ["storage"],
+  "permissions": ["storage", "alarms", "offscreen"],
   "host_permissions": ["https://*.supabase.co/*"],
   "background": {
     "service_worker": "background.js"

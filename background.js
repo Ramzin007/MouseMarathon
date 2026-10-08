@@ -1,6 +1,5 @@
 importScripts('config.js');
 
-// Distance between celebration jumpscares in meters (set to 5 or 10 for demo)
 const MILESTONE_STEP = 10;
 
 chrome.runtime.onInstalled.addListener(async () => {
@@ -14,7 +13,34 @@ chrome.runtime.onInstalled.addListener(async () => {
       last_milestone: 0
     });
   }
+  chrome.alarms.create('supabase_periodic_sync', { periodInMinutes: 1 });
 });
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === 'supabase_periodic_sync') {
+    syncToSupabase();
+  }
+});
+
+async function playBuzzerAudio() {
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: ['OFFSCREEN_DOCUMENT']
+  });
+
+  if (existingContexts.length === 0) {
+    await chrome.offscreen.createDocument({
+      url: 'offscreen.html',
+      reasons: ['AUDIO_PLAYBACK'],
+      justification: 'Play alarm sound immediately on milestone reach'
+    });
+  }
+
+  chrome.runtime.sendMessage({ type: 'PLAY_BUZZER' }).catch(() => {});
+}
+
+async function stopBuzzerAudio() {
+  chrome.runtime.sendMessage({ type: 'STOP_BUZZER' }).catch(() => {});
+}
 
 async function syncToSupabase() {
   const res = await chrome.storage.local.get(['user_id', 'nickname', 'unsynced_meters']);
@@ -38,10 +64,9 @@ async function syncToSupabase() {
     });
 
     if (response.ok) {
-      chrome.storage.local.get(['unsynced_meters'], (latest) => {
-        const remaining = Math.max(0, (latest.unsynced_meters || 0) - distanceToSend);
-        chrome.storage.local.set({ unsynced_meters: remaining });
-      });
+      const latest = await chrome.storage.local.get(['unsynced_meters']);
+      const remaining = Math.max(0, (latest.unsynced_meters || 0) - distanceToSend);
+      await chrome.storage.local.set({ unsynced_meters: remaining });
       return true;
     }
     return false;
@@ -53,15 +78,19 @@ async function syncToSupabase() {
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'MOUSE_DELTA') {
-    chrome.storage.local.get(['total_meters', 'unsynced_meters', 'last_milestone'], (res) => {
+    chrome.storage.local.get(['total_meters', 'unsynced_meters', 'last_milestone'], async (res) => {
       const oldTotal = res.total_meters || 0;
       const newTotal = oldTotal + msg.meters;
       const unsynced = (res.unsynced_meters || 0) + msg.meters;
       let lastMilestone = res.last_milestone || 0;
 
-      // Trigger every MILESTONE_STEP continuously
       if (newTotal - lastMilestone >= MILESTONE_STEP) {
         lastMilestone = Math.floor(newTotal / MILESTONE_STEP) * MILESTONE_STEP;
+        
+        // 1. Play the buzzer immediately via Offscreen (bypasses tab autoplay block)
+        await playBuzzerAudio();
+
+        // 2. Trigger the meme overlay in the active tab
         if (sender.tab?.id) {
           chrome.tabs.sendMessage(sender.tab.id, {
             type: 'TRIGGER_CELEBRATION',
@@ -76,6 +105,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         last_milestone: lastMilestone
       });
     });
+    return false;
+  }
+
+  if (msg.type === 'DISMISS_BUZZER') {
+    stopBuzzerAudio();
+    return false;
   }
 
   if (msg.type === 'MANUAL_SYNC') {
@@ -85,5 +120,3 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 });
-
-setInterval(syncToSupabase, 60000);

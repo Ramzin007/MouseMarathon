@@ -5,9 +5,12 @@ const syncBtn = document.getElementById('syncBtn');
 function updateLocalDisplay() {
   chrome.storage.local.get(['total_meters', 'nickname'], (res) => {
     const m = res.total_meters || 0;
-    document.getElementById('dist').innerText = m > 1000 
-      ? `${(m / 1000).toFixed(3)} km` 
-      : `${m.toFixed(2)} m`;
+    const distEl = document.getElementById('dist');
+    if (distEl) {
+      distEl.innerText = m > 1000 
+        ? `${(m / 1000).toFixed(3)} km` 
+        : `${m.toFixed(2)} m`;
+    }
 
     if (res.nickname && !nicknameInput.value) {
       nicknameInput.value = res.nickname;
@@ -15,13 +18,15 @@ function updateLocalDisplay() {
   });
 }
 
-// Listen for live updates while the popup remains open
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'local' && changes.total_meters) {
     const m = changes.total_meters.newValue || 0;
-    document.getElementById('dist').innerText = m > 1000 
-      ? `${(m / 1000).toFixed(3)} km` 
-      : `${m.toFixed(2)} m`;
+    const distEl = document.getElementById('dist');
+    if (distEl) {
+      distEl.innerText = m > 1000 
+        ? `${(m / 1000).toFixed(3)} km` 
+        : `${m.toFixed(2)} m`;
+    }
   }
 });
 
@@ -36,7 +41,7 @@ function loadLeaderboard() {
     .then(data => {
       const table = document.getElementById('leaderboard');
       table.innerHTML = '';
-      if (!data.length) {
+      if (!Array.isArray(data) || !data.length) {
         table.innerHTML = '<tr><td colspan="3">No runners yet.</td></tr>';
         return;
       }
@@ -45,7 +50,7 @@ function loadLeaderboard() {
         tr.innerHTML = `
           <td class="rank">#${i + 1}</td>
           <td>${(row.nickname || 'Anon').substring(0, 14)}</td>
-          <td class="score">${parseFloat(row.total_meters).toFixed(1)}m</td>
+          <td class="score">${parseFloat(row.total_meters || 0).toFixed(1)}m</td>
         `;
         table.appendChild(tr);
       });
@@ -55,7 +60,6 @@ function loadLeaderboard() {
     });
 }
 
-// Single handler for saving nickname locally and to Supabase
 saveNickBtn.addEventListener('click', async () => {
   const newNick = nicknameInput.value.trim();
   if (!newNick) return;
@@ -88,7 +92,6 @@ saveNickBtn.addEventListener('click', async () => {
   }, 1200);
 });
 
-// Sync button handler
 syncBtn.addEventListener('click', () => {
   syncBtn.disabled = true;
   syncBtn.innerText = 'SYNCING...';
