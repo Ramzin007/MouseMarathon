@@ -12,6 +12,7 @@ const MEME_ROSTER = [
   { img: 'https://media.giphy.com/media/blSTtZehjAZ8I/giphy.gif', tag: 'ADIPOLI KUTTAN CELEBRATION' }
 ];
 
+// Heuristic Privacy Check: abort on visible password or credit card fields
 const sensitiveField = document.querySelector('input[type="password"], input[autocomplete="cc-number"]');
 const isFieldVisible = sensitiveField && (sensitiveField.offsetWidth > 0 || sensitiveField.offsetHeight > 0);
 
@@ -35,6 +36,7 @@ if (isFieldVisible) {
 
   const flushInterval = setInterval(() => {
     try {
+      // Guard against orphaned content scripts if extension reloads
       if (!chrome.runtime || !chrome.runtime.id) {
         clearInterval(flushInterval);
         return;
@@ -45,7 +47,9 @@ if (isFieldVisible) {
           type: 'MOUSE_DELTA',
           meters: bufferedMeters
         }, () => {
-          if (chrome.runtime.lastError) {}
+          if (chrome.runtime.lastError) {
+            // Suppress disconnection errors cleanly
+          }
         });
         bufferedMeters = 0;
       }
@@ -94,7 +98,17 @@ function showCelebration(milestone) {
   `;
 
   overlay.addEventListener('click', () => {
-    chrome.runtime.sendMessage({ type: 'DISMISS_BUZZER' });
+    try {
+      if (chrome.runtime && chrome.runtime.id) {
+        chrome.runtime.sendMessage({ type: 'DISMISS_BUZZER' }, () => {
+          if (chrome.runtime.lastError) {
+            // Suppress port closure notifications
+          }
+        });
+      }
+    } catch (err) {
+      // Catch invalidated context if extension was reloaded mid-session
+    }
     overlay.remove();
   });
 
